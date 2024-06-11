@@ -1,0 +1,54 @@
+from django.contrib.auth.models import User
+from news.models import Author
+from news.models import PostCategory
+from news.models import Post
+from news.models import Category
+from news.models import Comment
+
+Author.objects.create(user = User.objects.create_user('username1'))
+Author.objects.create(user = User.objects.create_user('username2'))
+
+Category.objects.create(category = 'Природа')
+Category.objects.create(category = 'Дом')
+Category.objects.create(category = 'Город')
+Category.objects.create(category = 'Дача')
+
+Post.objects.create(author = Author.objects.get(pk=2), news = 'article', title_news = 'word', text_news = 'Word of chanel' )
+Post.objects.create(author = Author.objects.get(pk=1), news = 'article', title_news = 'word', text_news = 'Word of Word' )
+Post.objects.create(author = Author.objects.get(pk=1), news = 'news', title_news = 'word', text_news = 'Dog' )
+
+PostCategory.objects.create(post = Post.objects.get(pk=1), category = Category.objects.get(pk=1) )
+PostCategory.objects.create(post = Post.objects.get(pk=1), category = Category.objects.get(pk=2) )
+PostCategory.objects.create(post = Post.objects.get(pk=2), category = Category.objects.get(pk=2) )
+PostCategory.objects.create(post = Post.objects.get(pk=3), category = Category.objects.get(pk=3) )
+
+Comment.objects.create(post = Post.objects.get(pk=1), user = User.objects.get(pk=1), text_comment = "yes" )
+Comment.objects.create(post = Post.objects.get(pk=2), user = User.objects.get(pk=2), text_comment = "no" )
+Comment.objects.create(post = Post.objects.get(pk=3), user = User.objects.get(pk=1), text_comment = "no" )
+Comment.objects.create(post = Post.objects.get(pk=4), user = User.objects.get(pk=2), text_comment = "Good" )
+
+Post.objects.get(pk=1).like()
+Post.objects.get(pk=1).like()
+Post.objects.get(pk=2).like()
+Post.objects.get(pk=3).like()
+Post.objects.get(pk=4).like()
+Post.objects.get(pk=4).like()
+Post.objects.get(pk=4).dislike()
+Comment.objects.get(pk=4).like()
+Comment.objects.get(pk=3).like()
+Comment.objects.get(pk=3).like()
+Comment.objects.get(pk=2).like()
+Comment.objects.get(pk=1).like()
+Comment.objects.get(pk=1).like()
+Comment.objects.get(pk=1).like()
+Comment.objects.get(pk=1).dislike()
+Author.objects.get(pk=1).update_reting()
+Author.objects.get(pk=2).update_reting()
+user = Author.objects.all().order_by('-user_reiting').first()
+user.user.username , user.user_reiting
+post = Post.objects.filter(author = user).order_by('-post_reiting').first()
+post.time_in , post.author.user.username, post.post_reiting , post.title_news, post.preview()
+comment_post =  Comment.objects.filter(post_id = post.id).values('time_in', 'user', 'comment_reiting', 'text_comment')
+comment_post
+
+
