@@ -46,6 +46,9 @@ class Post(models.Model):
     text_news = models.TextField(default="Текст отсутствует")
     post_reiting = models.IntegerField(default=0)
 
+
+
+
     def like(self):
         self.post_reiting = self.post_reiting + 1
         self.save()
