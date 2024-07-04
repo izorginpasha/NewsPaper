@@ -10,8 +10,8 @@ urlpatterns = [
     # Т.к. наше объявленное представление является классом,
     # а Django ожидает функцию, нам надо представить этот класс в виде view.
     # Для этого вызываем метод as_view.
-    path('', ProductList.as_view(), name='news_list'),
-    path('search', PostList.as_view(), name='news_search'),
+    path('news/', ProductList.as_view(), name='news_list'),
+    path('news/search', PostList.as_view(), name='news_search'),
     path('news/create', PostCreate.as_view(), name='news_create'),
     path('news/<int:pk>/edit', PostUpdate.as_view(), name='news_edit'),
     path('news/<int:pk>/delete', PostDelete.as_view(), name='news_delete'),

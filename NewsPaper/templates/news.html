@@ -1,6 +1,8 @@
 <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}!
+{# Импортируем модуль с нашим тегом #}
+{% load custom_tags %}
 <!-- Название у нас будет products -->
 {% block title %}
 Products
@@ -36,7 +38,7 @@ Products
 
 {# Информация о предыдущих страницах #}
 {% if page_obj.has_previous %}
-<a href="?page=1">1</a>
+<a href="?{% url_replace page=1 %}">1</a>
 {% if page_obj.previous_page_number != 1 %}
 ...
 <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
