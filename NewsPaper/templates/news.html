@@ -56,4 +56,9 @@ Products
 <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
 {% endif %}
 {% endif %}
+<hr>
+{% if is_not_premium %}
+<button> <a href="news/upgrade/"> Стать автором</a> </button>
+{% endif %}
+<button> <a href="accounts/">Выйти</a> </button>
 {% endblock content %}

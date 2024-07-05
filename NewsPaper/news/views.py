@@ -5,10 +5,15 @@ from datetime import datetime
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.views.generic import TemplateView
+from django.shortcuts import redirect
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
-class ProductList(ListView):
+class ProductList(LoginRequiredMixin, ListView):
     # Указываем модель, объекты которой мы будем выводить
     model = Post
     # Поле, которое будет использоваться для сортировки объектов
@@ -34,6 +39,9 @@ class ProductList(ListView):
         # Добавим ещё одну пустую переменную,
         # чтобы на её примере рассмотреть работу ещё одного фильтра.
         context['next_sale'] = None
+
+
+        context['is_not_premium'] = not self.request.user.groups.filter(name='premium').exists()
 
         return context
 
@@ -89,7 +97,8 @@ class PostList(ListView):
         return context
 
 
-class PostCreate(CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'news_create.html'
@@ -100,7 +109,8 @@ class PostCreate(CreateView):
         return super().form_valid(form)
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(LoginRequiredMixin, UpdateView,PermissionRequiredMixin):
+    permission_required = ('news.change_product',)
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
@@ -141,3 +151,10 @@ class ArticlesDelete(DeleteView):
     model = Post
     template_name = 'articles_delete.html'
     success_url = reverse_lazy('news_list')
+@login_required
+def upgrade_me(request):
+    user = request.user
+    premium_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        premium_group.user_set.add(user)
+    return redirect('/')
