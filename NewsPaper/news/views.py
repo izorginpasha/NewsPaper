@@ -46,7 +46,7 @@ class ProductList(LoginRequiredMixin, ListView):
         return context
 
 
-class ProductDetail(DetailView):
+class ProductDetail(LoginRequiredMixin,DetailView):
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
     # Используем другой шаблон — product.html
@@ -55,7 +55,7 @@ class ProductDetail(DetailView):
     context_object_name = 'news'
 
 
-class PostList(ListView):
+class PostList(LoginRequiredMixin, ListView):
     # Указываем модель, объекты которой мы будем выводить
     model = Post
     # Поле, которое будет использоваться для сортировки объектов
@@ -97,7 +97,7 @@ class PostList(ListView):
         return context
 
 
-class PostCreate(PermissionRequiredMixin, CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView, LoginRequiredMixin):
     permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
@@ -121,13 +121,13 @@ class PostUpdate(LoginRequiredMixin, UpdateView,PermissionRequiredMixin):
         return super().form_valid(form)
 
 
-class PostDelete(DeleteView):
+class PostDelete(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
 
 
-class ArticlesCreate(CreateView):
+class ArticlesCreate(CreateView, LoginRequiredMixin):
     form_class = PostForm
     model = Post
     template_name = 'articles_create.html'
@@ -138,7 +138,7 @@ class ArticlesCreate(CreateView):
         return super().form_valid(form)
 
 
-class ArticlesUpdate(CreateView):
+class ArticlesUpdate(CreateView,LoginRequiredMixin):
     form_class = PostForm
     model = Post
     template_name = 'articles_edit.html'
@@ -147,14 +147,14 @@ class ArticlesUpdate(CreateView):
         post = form.save(commit=False)
         post.news = 'articles'
         return super().form_valid(form)
-class ArticlesDelete(DeleteView):
+class ArticlesDelete(DeleteView,LoginRequiredMixin):
     model = Post
     template_name = 'articles_delete.html'
     success_url = reverse_lazy('news_list')
-@login_required
-def upgrade_me(request):
-    user = request.user
-    premium_group = Group.objects.get(name='authors')
-    if not request.user.groups.filter(name='authors').exists():
-        premium_group.user_set.add(user)
-    return redirect('/')
+# @login_required
+# def upgrade_me(request):
+#     user = request.user
+#     premium_group = Group.objects.get(name='authors')
+#     if not request.user.groups.filter(name='authors').exists():
+#         premium_group.user_set.add(user)
+#     return redirect('/')
