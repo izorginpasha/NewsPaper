@@ -97,7 +97,7 @@ class PostList(LoginRequiredMixin, ListView):
         return context
 
 
-class PostCreate(PermissionRequiredMixin, CreateView, LoginRequiredMixin):
+class PostCreate(LoginRequiredMixin ,PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
