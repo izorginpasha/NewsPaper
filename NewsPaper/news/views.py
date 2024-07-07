@@ -10,7 +10,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-# from django.http import HttpResponse
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -46,7 +46,7 @@ class ProductList(LoginRequiredMixin, ListView):
         return context
 
 
-class ProductDetail(DetailView):
+class ProductDetail(LoginRequiredMixin, DetailView):
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
     # Используем другой шаблон — product.html
@@ -55,7 +55,7 @@ class ProductDetail(DetailView):
     context_object_name = 'news'
 
 
-class PostList(ListView):
+class PostList(LoginRequiredMixin, ListView):
     # Указываем модель, объекты которой мы будем выводить
     model = Post
     # Поле, которое будет использоваться для сортировки объектов
@@ -97,7 +97,7 @@ class PostList(ListView):
         return context
 
 
-class PostCreate(PermissionRequiredMixin, CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView, LoginRequiredMixin):
     permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
@@ -114,7 +114,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
         return super().form_valid(form )
 
 
-class PostUpdate( UpdateView):
+class PostUpdate(LoginRequiredMixin, UpdateView, PermissionRequiredMixin):
     permission_required = ('news.change_product',)
     form_class = PostForm
     model = Post
@@ -131,7 +131,7 @@ class PostUpdate( UpdateView):
         return super().form_valid(form)
 
 
-class PostDelete( DeleteView):
+class PostDelete(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
@@ -144,3 +144,4 @@ def upgrade_me(request):
         premium_group.user_set.add(user)
     return redirect('/')
 
+#
