@@ -2,13 +2,11 @@
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}!
 <!-- Название у нас будет products -->
-{% block title %}
-news_create
-{% endblock title %}
+
 
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
-<h1>Создать новость</h1>
+<h1>Создать</h1>
 {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
 <form action="" method="post">
     {% csrf_token %}
