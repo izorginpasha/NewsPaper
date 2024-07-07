@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
+# from django.http import HttpResponse
 
 
 # Create your views here.
@@ -39,7 +40,6 @@ class ProductList(LoginRequiredMixin, ListView):
         # Добавим ещё одну пустую переменную,
         # чтобы на её примере рассмотреть работу ещё одного фильтра.
         context['next_sale'] = None
-
 
         context['is_not_premium'] = not self.request.user.groups.filter(name='premium').exists()
 
@@ -104,53 +104,38 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     template_name = 'news_create.html'
 
     def form_valid(self, form):
+        path = self.request.path  # получаем запрошенный путь
         post = form.save(commit=False)
-        post.news = 'news'
-        return super().form_valid(form)
+        if path == "/news/create":
+            post.news = 'news'
+        else:
+            post.news = 'articles'
+
+        return super().form_valid(form )
 
 
-class PostUpdate(LoginRequiredMixin, UpdateView,PermissionRequiredMixin):
+class PostUpdate( UpdateView):
     permission_required = ('news.change_product',)
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
 
     def form_valid(self, form):
+        path = self.request.path  # получаем запрошенный путь
         post = form.save(commit=False)
-        post.news = 'news'
+        if path == "/news/create":
+            post.news = 'news'
+        else:
+            post.news = 'articles'
+
         return super().form_valid(form)
 
 
-class PostDelete(DeleteView):
+class PostDelete( DeleteView):
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
 
-
-class ArticlesCreate(CreateView):
-    form_class = PostForm
-    model = Post
-    template_name = 'articles_create.html'
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.news = 'articles'
-        return super().form_valid(form)
-
-
-class ArticlesUpdate(CreateView):
-    form_class = PostForm
-    model = Post
-    template_name = 'articles_edit.html'
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.news = 'articles'
-        return super().form_valid(form)
-class ArticlesDelete(DeleteView):
-    model = Post
-    template_name = 'articles_delete.html'
-    success_url = reverse_lazy('news_list')
 @login_required
 def upgrade_me(request):
     user = request.user
@@ -158,3 +143,4 @@ def upgrade_me(request):
     if not request.user.groups.filter(name='authors').exists():
         premium_group.user_set.add(user)
     return redirect('/')
+
