@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.core.mail import send_mail
 
 
 # Create your views here.
@@ -97,7 +98,7 @@ class PostList(LoginRequiredMixin, ListView):
         return context
 
 
-class PostCreate(LoginRequiredMixin ,PermissionRequiredMixin, CreateView):
+class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
@@ -110,8 +111,27 @@ class PostCreate(LoginRequiredMixin ,PermissionRequiredMixin, CreateView):
             post.news = 'news'
         else:
             post.news = 'articles'
+        appointment = Appointment(
+            date='да получилось',
+            client_name="Pavel",
+            massage="yes goood"
 
-        return super().form_valid(form )
+        )
+        appointment.save()
+
+        # отправляем письмо
+        send_mail(
+            subject=f'{appointment.client_name} {appointment.date}',
+            # имя клиента и дата записи будут в теме для удобства
+            message=appointment.message,  # сообщение с кратким описанием проблемы
+            from_email='peterbadson@yandex.ru',
+            # здесь указываете почту, с которой будете отправлять (об этом попозже)
+            recipient_list=['izorgin@vk.com']  # здесь список получателей. Например, секретарь, сам врач и т. д.
+        )
+
+        return super().form_valid(form)
+
+
 
 
 class PostUpdate(LoginRequiredMixin, UpdateView, PermissionRequiredMixin):
@@ -136,6 +156,7 @@ class PostDelete(LoginRequiredMixin, DeleteView):
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
 
+
 @login_required
 def upgrade_me(request):
     user = request.user
@@ -144,4 +165,29 @@ def upgrade_me(request):
         premium_group.user_set.add(user)
     return redirect('/')
 
-#
+
+@login_required
+def subscribers(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.add(user)
+    return redirect('categories')
+
+
+@login_required
+def unsubscribers(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.remove(user)
+    return redirect('categories')
+
+
+class CategoryList(LoginRequiredMixin, ListView):
+    # Указываем модель, объекты которой мы будем выводить
+    model = Category
+    # Указываем имя шаблона, в котором будут все инструкции о том,
+    # как именно пользователю должны быть показаны наши объекты
+    template_name = 'categories.html'
+    # Это имя списка, в котором будут лежать все объекты.
+    # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
+    context_object_name = 'categories'

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+
 # Create your models here.
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -27,6 +28,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     category = models.CharField(max_length=55, unique=True)
+    subscribers = models.ManyToManyField(User, related_name='categories')
 
 
 class Post(models.Model):

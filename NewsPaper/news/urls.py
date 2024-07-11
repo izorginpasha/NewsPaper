@@ -1,7 +1,7 @@
 from django.urls import path
 # Импортируем созданное нами представление
 from .views import (ProductList, ProductDetail, PostList, PostCreate, PostUpdate, PostDelete,
-                    upgrade_me)
+                    upgrade_me, subscribers, CategoryList, unsubscribers)
 
 urlpatterns = [
     # path — означает путь.
@@ -15,6 +15,7 @@ urlpatterns = [
     path('news/create', PostCreate.as_view(), name='news_create'),
     path('news/<int:pk>/edit', PostUpdate.as_view(), name='news_edit'),
     path('news/<int:pk>/delete', PostDelete.as_view(), name='news_delete'),
+    path('news/upgrade', upgrade_me, name='upgrade'),
     path('articles/create', PostCreate.as_view(), name='articles_create'),
     path('articles/<int:pk>/edit', PostUpdate.as_view(), name='articles_edit'),
     path('articles/<int:pk>/delete', PostDelete.as_view(), name='articles_delete'),
@@ -22,5 +23,9 @@ urlpatterns = [
     # int — указывает на то, что принимаются только целочисленные значения
     path('<int:pk>', ProductDetail.as_view(), name='news_detail'),
     path('', ProductList.as_view(), name='news_list'),
-    path('news/upgrade/', upgrade_me, name='upgrade')
+
+    path('categories/', CategoryList.as_view(), name='categories'),
+    path('categories/<int:pk>/subscribers', subscribers, name='subscribers'),
+    path('categories/<int:pk>/unsubscribers', unsubscribers, name='unsubscribers'),
+
 ]
