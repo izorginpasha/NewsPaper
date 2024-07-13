@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv, dotenv_values
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,3 +151,12 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {'signup': 'news.forms.BasicSignupForm'}
+config = dotenv_values()  # загружаем переменные окружения из evn
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = config['EMAIL_HOST_U']
+EMAIL_HOST = config["EMAIL_H"]
+EMAIL_PORT = config["EMAIL_P"]
+EMAIL_HOST_PASSWORD = config["EMAIL_HOST_P"]
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = f'{config["EMAIL_HOST_U"]}@yandex.ru'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True

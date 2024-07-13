@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+
 # Create your models here.
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -27,6 +28,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     category = models.CharField(max_length=55, unique=True)
+    subscribers = models.ManyToManyField(User, related_name='categories')
 
 
 class Post(models.Model):
@@ -46,6 +48,8 @@ class Post(models.Model):
     text_news = models.TextField(default="Текст отсутствует")
     post_reiting = models.IntegerField(default=0)
 
+
+
     def like(self):
         self.post_reiting = self.post_reiting + 1
         self.save()
@@ -58,7 +62,8 @@ class Post(models.Model):
         return self.text_news[:124] + "..."
 
     def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
+        return reverse('massage', args=[str(self.id)])
+
 
 
 class PostCategory(models.Model):

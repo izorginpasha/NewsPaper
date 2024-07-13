@@ -8,7 +8,13 @@ Product
 
 <!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
 {% block content %}
-<h1>{{ news.news|censorship }}</h1>
+<h1>{{news.news|censorship }}</h1>
 <h2>{{ news.time_in|date:'M d Y' }}</h2>
 <h2>{{ news.text_news|censorship }}</h2>
+
+
+<button><a href="/categories/{{postcat}}/subscribers"> Подписаться</a></button>
+
+
+
 {% endblock content %}
