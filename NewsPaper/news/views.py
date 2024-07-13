@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Category, Author, Post, PostCategory, Comment
+from .models import Category, Author, Post, PostCategory, Comment, User
 from datetime import datetime
 from .filters import PostFilter
 from .forms import PostForm
@@ -12,6 +12,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.urls import reverse
 
 
 # Create your views here.
@@ -55,6 +58,15 @@ class ProductDetail(LoginRequiredMixin, DetailView):
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'news'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # К словарю добавим текущую дату в ключ 'time_now'.
+        b = PostCategory.objects.filter(post=context['news'].id).values('category')
+        i = b[0]
+
+        context['postcat'] = i.get('category')
+        return context
+
 
 class PostList(LoginRequiredMixin, ListView):
     # Указываем модель, объекты которой мы будем выводить
@@ -90,11 +102,8 @@ class PostList(LoginRequiredMixin, ListView):
         # В ответе мы должны получить словарь.
         context = super().get_context_data(**kwargs)
         # К словарю добавим текущую дату в ключ 'time_now'.
-        context['time_now'] = datetime.utcnow()
-        # Добавим ещё одну пустую переменную,
-        # чтобы на её примере рассмотреть работу ещё одного фильтра.
-        context['next_sale'] = None
-        context['filterset'] = self.filterset
+
+        context['category'] = Category.objects.all()
         return context
 
 
@@ -104,34 +113,19 @@ class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     template_name = 'news_create.html'
 
+
+    # отправляем письм
+
     def form_valid(self, form):
         path = self.request.path  # получаем запрошенный путь
         post = form.save(commit=False)
+
         if path == "/news/create":
             post.news = 'news'
         else:
             post.news = 'articles'
-        appointment = Appointment(
-            date='да получилось',
-            client_name="Pavel",
-            massage="yes goood"
-
-        )
-        appointment.save()
-
-        # отправляем письмо
-        send_mail(
-            subject=f'{appointment.client_name} {appointment.date}',
-            # имя клиента и дата записи будут в теме для удобства
-            message=appointment.message,  # сообщение с кратким описанием проблемы
-            from_email='peterbadson@yandex.ru',
-            # здесь указываете почту, с которой будете отправлять (об этом попозже)
-            recipient_list=['izorgin@vk.com']  # здесь список получателей. Например, секретарь, сам врач и т. д.
-        )
 
         return super().form_valid(form)
-
-
 
 
 class PostUpdate(LoginRequiredMixin, UpdateView, PermissionRequiredMixin):
@@ -141,12 +135,7 @@ class PostUpdate(LoginRequiredMixin, UpdateView, PermissionRequiredMixin):
     template_name = 'news_edit.html'
 
     def form_valid(self, form):
-        path = self.request.path  # получаем запрошенный путь
         post = form.save(commit=False)
-        if path == "/news/create":
-            post.news = 'news'
-        else:
-            post.news = 'articles'
 
         return super().form_valid(form)
 
@@ -191,3 +180,31 @@ class CategoryList(LoginRequiredMixin, ListView):
     # Это имя списка, в котором будут лежать все объекты.
     # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'categories'
+
+
+@login_required
+def massage(request, pk):
+    user = request.user
+    news = Post.objects.get(id=pk)
+    b = PostCategory.objects.filter(post=news.id).values('category')
+    i = b[0]
+    category = i.get('category')
+    users = Category.objects.get(pk=category).subscribers.all()
+
+    for user in users:
+        if user.email:
+            send_mail(
+
+                subject=news.title_news[:124] + "...",
+                # имя клиента и дата записи будут в теме для удобства
+                message=f'Здравствуй, {user}. Новая статья в твоём любимом разделе!    '
+                        f'Краткое содержание:{news.text_news}...  '  # сообщение с кратким описанием проблемы
+                        f'Портобнo  http://127.0.0.1:8000/{news.id}',
+                from_email='izorgin.pasha@yandex.ru',
+                # здесь указываете почту, с которой будете отправлять (об этом попозже)
+                recipient_list=['izorgin@vk.com']  # здесь список получателей. Например, секретарь, сам врач и т. д.
+            )
+        else:
+            print("not email")
+
+    return redirect('news_detail', pk=pk)

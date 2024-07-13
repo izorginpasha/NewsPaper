@@ -48,6 +48,8 @@ class Post(models.Model):
     text_news = models.TextField(default="Текст отсутствует")
     post_reiting = models.IntegerField(default=0)
 
+
+
     def like(self):
         self.post_reiting = self.post_reiting + 1
         self.save()
@@ -60,7 +62,8 @@ class Post(models.Model):
         return self.text_news[:124] + "..."
 
     def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
+        return reverse('massage', args=[str(self.id)])
+
 
 
 class PostCategory(models.Model):
