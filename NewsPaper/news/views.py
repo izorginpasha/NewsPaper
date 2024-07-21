@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
+from .tasks import send_email_createPost
 
 
 # Create your views here.
@@ -33,6 +34,8 @@ class ProductList(LoginRequiredMixin, ListView):
 
     # Метод get_context_data позволяет нам изменить набор данных,
     # который будет передан в шаблон.
+
+
     def get_context_data(self, **kwargs):
         # С помощью super() мы обращаемся к родительским классам
         # и вызываем у них метод get_context_data с теми же аргументами,
@@ -186,25 +189,8 @@ class CategoryList(LoginRequiredMixin, ListView):
 def massage(request, pk):
     user = request.user
     news = Post.objects.get(id=pk)
-    b = PostCategory.objects.filter(post=news.id).values('category')
-    i = b[0]
-    category = i.get('category')
-    users = Category.objects.get(pk=category).subscribers.all()
+    send_email_createPost(user,news)
 
-    for user in users:
-        if user.email:
-            send_mail(
 
-                subject=news.title_news[:124] + "...",
-                # имя клиента и дата записи будут в теме для удобства
-                message=f'Здравствуй, {user}. Новая статья в твоём любимом разделе!    '
-                        f'Краткое содержание:{news.text_news}...  '  # сообщение с кратким описанием проблемы
-                        f'Портобнo  http://127.0.0.1:8000/{news.id}',
-                from_email='izorgin.pasha@yandex.ru',
-                # здесь указываете почту, с которой будете отправлять (об этом попозже)
-                recipient_list=['izorgin@vk.com']  # здесь список получателей. Например, секретарь, сам врач и т. д.
-            )
-        else:
-            print("not email")
 
     return redirect('news_detail', pk=pk)
