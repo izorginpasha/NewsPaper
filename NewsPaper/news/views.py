@@ -188,4 +188,5 @@ class CategoryList(LoginRequiredMixin, ListView):
 @login_required
 def massage(request, pk):
     send_email_createPost.apply_async([pk])
+
     return redirect('news_detail', pk=pk)

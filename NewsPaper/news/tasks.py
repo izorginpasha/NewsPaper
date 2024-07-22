@@ -56,3 +56,5 @@ def weekly_newsletter():
 
         else:
             print("not email")
+
+
