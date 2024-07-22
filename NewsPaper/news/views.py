@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
-from .tasks import send_email_createPost
+from .tasks import send_email_createPost, weekly_newsletter
 
 
 # Create your views here.
@@ -187,10 +187,5 @@ class CategoryList(LoginRequiredMixin, ListView):
 
 @login_required
 def massage(request, pk):
-    user = request.user
-    news = Post.objects.get(id=pk)
-    send_email_createPost(user,news)
-
-
-
+    send_email_createPost.apply_async([pk])
     return redirect('news_detail', pk=pk)
