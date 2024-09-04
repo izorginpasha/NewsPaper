@@ -14,7 +14,7 @@ from django.utils.log import DEFAULT_LOGGING
 from pathlib import Path
 import os
 
-from dotenv import  dotenv_values
+from dotenv import dotenv_values
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -196,7 +196,7 @@ LOGGING = {
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'console_error',
-            'exc_info': True,
+            'stream': 'ext://sys.stderr',
         },
         'file_general': {
             'level': 'INFO',
@@ -292,6 +292,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'cache_files'), # Указываем, куда будем сохранять кэшируемые файлы! Не забываем создать папку cache_files внутри папки с manage.py!
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'),
+        # Указываем, куда будем сохранять кэшируемые файлы! Не забываем создать папку cache_files внутри папки с manage.py!
     }
 }
