@@ -132,7 +132,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+USE_I18N = True#Эта строчка говорит нам о том, что интернационализации будут поддерживаться в нашем приложении.
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
